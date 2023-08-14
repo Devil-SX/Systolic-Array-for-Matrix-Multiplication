@@ -21,23 +21,6 @@ module systolic_array_tb;
   //always #5  clk = ! clk ;
 
 
-  task print_matrix_16;
-    input [16*16-1:0]matix;
-    integer  i,j;
-    begin
-      for (i = 0; i < 4; i = i + 1)
-      begin
-        $write("[");
-        for (j = 0; j < 4; j = j + 1)
-        begin
-          $write("%d ", matix[(4*i+j)*16-1-:16]);
-        end
-        $write("]\n");
-      end
-    end
-  endtask
-
-
   task print_matrix_32;
     input [16*32-1:0]matix;
     integer  i,j;
@@ -53,22 +36,6 @@ module systolic_array_tb;
       end
     end
   endtask
-
-
-  initial
-  begin
-    clk = 0;
-    forever
-      #5 clk = ! clk;
-  end
-
-  initial
-  begin
-    rst_n = 0;
-    #10 rst_n = 1;
-    $display("start test");
-  end
-
 
   reg[15:0] matrix_a[3:0][3:0];
   reg[15:0] matrix_b[3:0][3:0];
@@ -88,7 +55,6 @@ module systolic_array_tb;
     end
   endfunction
 
-
   function [16*4-1:0]get_matrix_b;
     input integer step;
     begin
@@ -104,21 +70,38 @@ module systolic_array_tb;
     end
   endfunction
 
-// initial matrix
-initial begin
-  for (integer i = 0; i < 4; i = i + 1)
+  
+  initial
   begin
-    for (integer j = 0; j < 4; j = j + 1)
-    begin
-      matrix_a[i][j] = i*4+j+1;
-      matrix_b[i][j] = i*4+j+1;
-    end
+    clk = 0;
+    forever
+      #5 clk = ! clk;
   end
-end
 
   initial
   begin
-    wait(rst_n == 1'b1); 
+    rst_n = 0;
+    #10 rst_n = 1;
+    $display("start test");
+  end
+
+
+  // initial matrix
+  initial
+  begin
+    for (integer i = 0; i < 4; i = i + 1)
+    begin
+      for (integer j = 0; j < 4; j = j + 1)
+      begin
+        matrix_a[i][j] = i*4+j+1;
+        matrix_b[i][j] = i*4+j+1;
+      end
+    end
+  end
+
+  initial
+  begin
+    wait(rst_n == 1'b1);
     // #30;
     for (integer step= 0; step<2*4; step=step+1)
     begin
@@ -128,13 +111,7 @@ end
       b = get_matrix_b(step);
       print_matrix_32(result);
     end
-    @(posedge clk);
-    print_matrix_32(result);
-    @(posedge clk);
-    print_matrix_32(result);
-    @(posedge clk);
-    print_matrix_32(result);
-    @(posedge clk);
+    repeat(4) @(posedge clk);
     $display("result:");
     print_matrix_32(result);
     $finish;
