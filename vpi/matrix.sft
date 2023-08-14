@@ -1,0 +1,2 @@
+$get_matrix_a  vpiSysFuncSized 64 unsigned
+$get_matrix_b  vpiSysFuncSized 64 unsigned
